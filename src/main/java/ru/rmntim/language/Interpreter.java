@@ -3,11 +3,14 @@ package ru.rmntim.language;
 import ru.rmntim.language.token.Token;
 import ru.rmntim.language.util.Logger;
 
-public class Interpreter implements Expression.Visitor<Object> {
-    public void interpret(Expression expression) {
+import java.util.List;
+
+public class Interpreter implements Expression.Visitor<Object>, Statement.Visitor<Void> {
+    public void interpret(final List<Statement> statements) {
         try {
-            var value = evaluate(expression);
-            System.out.println(stringify(value));
+            for (var statement : statements) {
+                execute(statement);
+            }
         } catch (RuntimeError error) {
             Logger.runtimeError(error);
         }
@@ -109,6 +112,19 @@ public class Interpreter implements Expression.Visitor<Object> {
         };
     }
 
+    @Override
+    public Void visit(Statement.Expr statement) {
+        evaluate(statement.getExpression());
+        return null;
+    }
+
+    @Override
+    public Void visit(Statement.Print statement) {
+        var value = evaluate(statement.getExpression());
+        System.out.println(stringify(value));
+        return null;
+    }
+
     private void checkNumberOperands(Token operator, Object... operands) {
         for (var operand : operands) {
             if (!(operand instanceof Double)) {
@@ -139,5 +155,9 @@ public class Interpreter implements Expression.Visitor<Object> {
 
     private Object evaluate(Expression expression) {
         return expression.accept(this);
+    }
+
+    private void execute(Statement statement) {
+        statement.accept(this);
     }
 }
