@@ -1,7 +1,5 @@
 package ru.rmntim.language;
 
-import ru.rmntim.language.util.Logger;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -34,7 +32,7 @@ public class Main {
                 break;
             }
             run(line);
-            Logger.errorState = false;
+            ErrorReporter.errorState = false;
         }
     }
 
@@ -43,10 +41,10 @@ public class Main {
         var bytes = Files.readAllBytes(Paths.get(path));
         run(new String(bytes, Charset.defaultCharset()));
 
-        if (Logger.errorState) {
+        if (ErrorReporter.errorState) {
             System.exit(65);
         }
-        if (Logger.runtimeErrorState) {
+        if (ErrorReporter.runtimeErrorState) {
             System.exit(70);
         }
     }
@@ -58,7 +56,7 @@ public class Main {
         var expr = parser.parse();
 
         // Stop if there was a syntax error
-        if (Logger.errorState) {
+        if (ErrorReporter.errorState) {
             return;
         }
 

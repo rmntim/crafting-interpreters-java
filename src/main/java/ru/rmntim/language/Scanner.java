@@ -2,7 +2,6 @@ package ru.rmntim.language;
 
 import ru.rmntim.language.token.Token;
 import ru.rmntim.language.token.TokenType;
-import ru.rmntim.language.util.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -126,7 +125,7 @@ public class Scanner {
                 } else if (isAlpha(c)) {
                     readIdentifier();
                 } else {
-                    Logger.error(line, "Unexpected character");
+                    ErrorReporter.error(line, "Unexpected character");
                 }
                 break;
         }
@@ -182,7 +181,7 @@ public class Scanner {
         }
 
         if (isEof()) {
-            Logger.error(line, "Unterminated string");
+            ErrorReporter.error(line, "Unterminated string");
             return;
         }
 

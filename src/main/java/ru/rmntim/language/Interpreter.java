@@ -1,7 +1,6 @@
 package ru.rmntim.language;
 
 import ru.rmntim.language.token.Token;
-import ru.rmntim.language.util.Logger;
 
 import java.util.List;
 
@@ -14,7 +13,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
                 execute(statement);
             }
         } catch (RuntimeError error) {
-            Logger.runtimeError(error);
+            ErrorReporter.runtimeError(error);
         }
     }
 

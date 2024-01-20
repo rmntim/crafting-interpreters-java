@@ -2,7 +2,6 @@ package ru.rmntim.language;
 
 import ru.rmntim.language.token.Token;
 import ru.rmntim.language.token.TokenType;
-import ru.rmntim.language.util.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -187,7 +186,7 @@ public class Parser {
     }
 
     private ParseError error(Token token, String message) {
-        Logger.error(token, message);
+        ErrorReporter.error(token, message);
         return new ParseError();
     }
 

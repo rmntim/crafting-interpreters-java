@@ -1,14 +1,13 @@
-package ru.rmntim.language.util;
+package ru.rmntim.language;
 
-import ru.rmntim.language.RuntimeError;
 import ru.rmntim.language.token.Token;
 import ru.rmntim.language.token.TokenType;
 
-public class Logger {
+public class ErrorReporter {
     public static boolean errorState = false;
     public static boolean runtimeErrorState = false;
 
-    private Logger() {
+    private ErrorReporter() {
     }
 
     public static void error(int line, String message) {
