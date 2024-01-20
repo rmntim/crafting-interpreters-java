@@ -6,6 +6,8 @@ import ru.rmntim.language.util.Logger;
 import java.util.List;
 
 public class Interpreter implements Expression.Visitor<Object>, Statement.Visitor<Void> {
+    private final Environment environment = new Environment();
+
     public void interpret(final List<Statement> statements) {
         try {
             for (var statement : statements) {
@@ -113,6 +115,11 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
+    public Object visit(Expression.Variable expression) {
+        return environment.get(expression.getName());
+    }
+
+    @Override
     public Void visit(Statement.Expr statement) {
         evaluate(statement.getExpression());
         return null;
@@ -122,6 +129,17 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     public Void visit(Statement.Print statement) {
         var value = evaluate(statement.getExpression());
         System.out.println(stringify(value));
+        return null;
+    }
+
+    @Override
+    public Void visit(Statement.Let statement) {
+        Object value = null;
+        if (statement.getInitializer() != null) {
+            value = evaluate(statement.getInitializer());
+        }
+
+        environment.define(statement.getName().literal(), value);
         return null;
     }
 
