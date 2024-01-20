@@ -16,15 +16,15 @@ public abstract class Expression {
     public abstract <T> T accept(Visitor<T> visitor);
 
     public static class Binary extends Expression {
+        private final Expression left;
+        private final Token operator;
+        private final Expression right;
+
         public Binary(Expression left, Token operator, Expression right) {
             this.left = left;
             this.operator = operator;
             this.right = right;
         }
-
-        private final Expression left;
-        private final Token operator;
-        private final Expression right;
 
         public Expression getLeft() {
             return left;
@@ -45,11 +45,11 @@ public abstract class Expression {
     }
 
     public static class Grouping extends Expression {
+        private final Expression subExpression;
+
         public Grouping(Expression expression) {
             this.subExpression = expression;
         }
-
-        private final Expression subExpression;
 
         public Expression getSubExpression() {
             return subExpression;
@@ -62,11 +62,11 @@ public abstract class Expression {
     }
 
     public static class Literal extends Expression {
+        private final Object value;
+
         public Literal(Object value) {
             this.value = value;
         }
-
-        private final Object value;
 
         public Object getValue() {
             return value;
@@ -79,13 +79,13 @@ public abstract class Expression {
     }
 
     public static class Unary extends Expression {
+        private final Token operator;
+        private final Expression right;
+
         public Unary(Token operator, Expression right) {
             this.operator = operator;
             this.right = right;
         }
-
-        private final Token operator;
-        private final Expression right;
 
         public Token getOperator() {
             return operator;
