@@ -4,6 +4,7 @@ import ru.rmntim.language.token.Token;
 import ru.rmntim.language.token.TokenType;
 import ru.rmntim.language.util.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static ru.rmntim.language.token.TokenType.*;
@@ -19,12 +20,31 @@ public class Parser {
         this.tokens = tokens;
     }
 
-    public Expression parse() {
-        try {
-            return expression();
-        } catch (ParseError error) {
-            return null;
+    public List<Statement> parse() {
+        var statements = new ArrayList<Statement>();
+        while (!isEnd()) {
+            statements.add(statement());
         }
+        return statements;
+    }
+
+    private Statement statement() {
+        if (expect(PRINT)) {
+            return printStatement();
+        }
+        return expressionStatement();
+    }
+
+    private Statement expressionStatement() {
+        var expr = expression();
+        consume(SEMICOLON, "Expected ';' after expression");
+        return new Statement.Expr(expr);
+    }
+
+    private Statement printStatement() {
+        var expr = expression();
+        consume(SEMICOLON, "Expected ';' after expression");
+        return new Statement.Print(expr);
     }
 
     private Expression expression() {
