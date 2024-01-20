@@ -11,6 +11,8 @@ public abstract class Expression {
         T visit(Grouping expression);
 
         T visit(Literal expression);
+
+        T visit(Variable variable);
     }
 
     public abstract <T> T accept(Visitor<T> visitor);
@@ -93,6 +95,23 @@ public abstract class Expression {
 
         public Expression getRight() {
             return right;
+        }
+
+        @Override
+        public <T> T accept(Visitor<T> visitor) {
+            return visitor.visit(this);
+        }
+    }
+
+    public static class Variable extends Expression {
+        private final Token name;
+
+        public Variable(Token name) {
+            this.name = name;
+        }
+
+        public Token getName() {
+            return name;
         }
 
         @Override
