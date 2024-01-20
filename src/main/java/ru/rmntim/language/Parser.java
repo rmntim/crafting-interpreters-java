@@ -23,9 +23,33 @@ public class Parser {
     public List<Statement> parse() {
         var statements = new ArrayList<Statement>();
         while (!isEnd()) {
-            statements.add(statement());
+            statements.add(declaration());
         }
         return statements;
+    }
+
+    private Statement declaration() {
+        try {
+            if (expect(LET)) {
+                return letDeclaration();
+            }
+            return statement();
+        } catch (ParseError error) {
+            synchronize();
+            return null;
+        }
+    }
+
+    private Statement letDeclaration() {
+        var name = consume(IDENTIFIER, "Expected variable name");
+        Expression initializer = null;
+
+        if (expect(EQUAL)) {
+            initializer = expression();
+        }
+
+        consume(SEMICOLON, "Expected ';' after variable declaration");
+        return new Statement.Let(name, initializer);
     }
 
     private Statement statement() {
@@ -116,6 +140,10 @@ public class Parser {
 
         if (expect(NUMBER, STRING)) {
             return new Expression.Literal(previous().value());
+        }
+
+        if (expect(IDENTIFIER)) {
+            return new Expression.Variable(previous());
         }
 
         if (expect(LEFT_PAREN)) {
