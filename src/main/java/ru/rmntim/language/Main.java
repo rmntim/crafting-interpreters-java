@@ -51,8 +51,9 @@ public class Main {
         var scanner = new Scanner(source);
         var tokens = scanner.scanTokens();
         var parser = new Parser(tokens);
-        var expr = parser.parse().orElseThrow();
+        var expr = parser.parse();
 
+        // Stop if there was a syntax error
         if (Logger.errorState) {
             return;
         }

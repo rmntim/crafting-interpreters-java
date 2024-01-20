@@ -5,7 +5,6 @@ import ru.rmntim.language.token.TokenType;
 import ru.rmntim.language.util.Logger;
 
 import java.util.List;
-import java.util.Optional;
 
 import static ru.rmntim.language.token.TokenType.*;
 
@@ -20,11 +19,11 @@ public class Parser {
         this.tokens = tokens;
     }
 
-    public Optional<Expression> parse() {
+    public Expression parse() {
         try {
-            return Optional.of(expression());
+            return expression();
         } catch (ParseError error) {
-            return Optional.empty();
+            return null;
         }
     }
 
