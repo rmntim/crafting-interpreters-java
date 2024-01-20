@@ -1,6 +1,5 @@
 package ru.rmntim.language;
 
-import ru.rmntim.language.util.ASTPrinter;
 import ru.rmntim.language.util.Logger;
 
 import java.io.BufferedReader;
@@ -11,6 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class Main {
+    private static final Interpreter interpreter = new Interpreter();
+
     public static void main(String[] args) throws IOException {
         if (args.length > 1) {
             System.err.println("Usage: lox [FILENAME]");
@@ -45,6 +46,9 @@ public class Main {
         if (Logger.errorState) {
             System.exit(65);
         }
+        if (Logger.runtimeErrorState) {
+            System.exit(70);
+        }
     }
 
     private static void run(String source) {
@@ -58,6 +62,6 @@ public class Main {
             return;
         }
 
-        System.out.println(new ASTPrinter().print(expr));
+        interpreter.interpret(expr);
     }
 }
