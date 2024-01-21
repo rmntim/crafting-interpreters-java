@@ -61,9 +61,6 @@ public class Parser {
         return expressionStatement();
     }
 
-    /**
-     * @return List of inner declarations
-     */
     private List<Statement> block() {
         var statements = new ArrayList<Statement>();
 
