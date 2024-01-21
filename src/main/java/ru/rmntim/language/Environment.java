@@ -19,4 +19,13 @@ public class Environment {
 
         throw new RuntimeError(name, "Undefined variable '" + name.literal() + "'");
     }
+
+    public void assign(Token name, Object value) {
+        if (values.containsKey(name.literal())) {
+            values.put(name.literal(), value);
+            return;
+        }
+
+        throw new RuntimeError(name, "Undefined variable '" + name.literal() + "'");
+    }
 }

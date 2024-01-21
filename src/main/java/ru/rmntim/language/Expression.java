@@ -12,7 +12,9 @@ public abstract class Expression {
 
         T visit(Literal expression);
 
-        T visit(Variable variable);
+        T visit(Variable expression);
+
+        T visit(Assignment expression);
     }
 
     public abstract <T> T accept(Visitor<T> visitor);
@@ -112,6 +114,29 @@ public abstract class Expression {
 
         public Token getName() {
             return name;
+        }
+
+        @Override
+        public <T> T accept(Visitor<T> visitor) {
+            return visitor.visit(this);
+        }
+    }
+
+    public static class Assignment extends Expression {
+        private final Token name;
+        private final Expression value;
+
+        public Assignment(Token name, Expression value) {
+            this.name = name;
+            this.value = value;
+        }
+
+        public Token getName() {
+            return name;
+        }
+
+        public Expression getValue() {
+            return value;
         }
 
         @Override

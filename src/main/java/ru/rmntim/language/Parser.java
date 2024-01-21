@@ -71,7 +71,26 @@ public class Parser {
     }
 
     private Expression expression() {
-        return equality();
+        return assignment();
+    }
+
+    private Expression assignment() {
+        var expr = equality();
+
+        if (expect(EQUAL)) {
+            var equals = previous();
+            var value = assignment();
+
+            if (expr instanceof Expression.Variable) {
+                var name = ((Expression.Variable) expr).getName();
+                return new Expression.Assignment(name, value);
+            }
+
+            // Not throwing the error, because parser technically is in right state, so nothing is broken
+            error(equals, "Invalid assignment target");
+        }
+
+        return expr;
     }
 
     private Expression equality() {

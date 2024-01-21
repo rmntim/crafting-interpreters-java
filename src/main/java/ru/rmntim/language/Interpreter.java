@@ -119,6 +119,13 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
+    public Object visit(Expression.Assignment expression) {
+        var value = evaluate(expression.getValue());
+        environment.assign(expression.getName(), value);
+        return value;
+    }
+
+    @Override
     public Void visit(Statement.Expr statement) {
         evaluate(statement.getExpression());
         return null;
