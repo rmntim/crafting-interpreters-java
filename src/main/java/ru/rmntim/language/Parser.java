@@ -87,6 +87,7 @@ public class Parser {
             }
 
             // Not throwing the error, because parser technically is in right state, so nothing is broken
+            //noinspection ThrowableNotThrown
             error(equals, "Invalid assignment target");
         }
 
