@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Environment {
-    private final Map<String, Object> values = new HashMap<>();
+    private final Map<String, Variable> variables = new HashMap<>();
     private final Environment parent;
 
     public Environment() {
@@ -17,13 +17,18 @@ public class Environment {
         this.parent = parent;
     }
 
-    public void define(String name, Object value) {
-        values.put(name, value);
+    public void define(String name, Variable value) {
+        variables.put(name, value);
     }
 
     public Object get(Token name) {
-        if (values.containsKey(name.literal())) {
-            return values.get(name.literal());
+        if (variables.containsKey(name.literal())) {
+            var variable = variables.get(name.literal());
+            if (variable.isInitialized()) {
+                return variable.getValue();
+            }
+
+            throw new RuntimeError(name, "Uninitialized variable '" + name.literal() + "'");
         }
 
         if (parent != null) {
@@ -33,14 +38,16 @@ public class Environment {
         throw new RuntimeError(name, "Undefined variable '" + name.literal() + "'");
     }
 
-    public void assign(Token name, Object value) {
-        if (values.containsKey(name.literal())) {
-            values.put(name.literal(), value);
+    public void assign(Token name, Object newValue) {
+        if (variables.containsKey(name.literal())) {
+            var value = variables.get(name.literal());
+            value.setValue(newValue);
+            value.setInitialized();
             return;
         }
 
         if (parent != null) {
-            parent.assign(name, value);
+            parent.assign(name, newValue);
             return;
         }
 

@@ -140,12 +140,14 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
 
     @Override
     public Void visit(Statement.Let statement) {
-        Object value = null;
+        var variable = new Variable();
+
         if (statement.getInitializer() != null) {
-            value = evaluate(statement.getInitializer());
+            variable.setValue(evaluate(statement.getInitializer()));
+            variable.setInitialized();
         }
 
-        environment.define(statement.getName().literal(), value);
+        environment.define(statement.getName().literal(), variable);
         return null;
     }
 
