@@ -2,6 +2,8 @@ package ru.rmntim.language;
 
 import ru.rmntim.language.token.Token;
 
+import java.util.List;
+
 public abstract class Statement {
     public interface Visitor<T> {
         T visit(Expr statement);
@@ -9,6 +11,8 @@ public abstract class Statement {
         T visit(Print statement);
 
         T visit(Let statement);
+
+        T visit(Block statement);
     }
 
     public abstract <T> T accept(Visitor<T> visitor);
@@ -62,6 +66,23 @@ public abstract class Statement {
 
         public Expression getInitializer() {
             return initializer;
+        }
+
+        @Override
+        public <T> T accept(Visitor<T> visitor) {
+            return visitor.visit(this);
+        }
+    }
+
+    public static class Block extends Statement {
+        private final List<Statement> statements;
+
+        public Block(List<Statement> statements) {
+            this.statements = statements;
+        }
+
+        public List<Statement> getStatements() {
+            return statements;
         }
 
         @Override

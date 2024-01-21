@@ -55,7 +55,26 @@ public class Parser {
         if (expect(PRINT)) {
             return printStatement();
         }
+        if (expect(LEFT_BRACE)) {
+            return new Statement.Block(block());
+        }
         return expressionStatement();
+    }
+
+    /**
+     * @return List of inner declarations
+     */
+    private List<Statement> block() {
+        var statements = new ArrayList<Statement>();
+
+        while (!check(RIGHT_BRACE) && !isEnd()) {
+            statements.add(declaration());
+        }
+
+        consume(RIGHT_BRACE, "Expected '}' at the end of the block");
+        // Method doesn't return the `Statement.Block` class,
+        // so it can be reused for function bodies.
+        return statements;
     }
 
     private Statement expressionStatement() {

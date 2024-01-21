@@ -5,7 +5,7 @@ import ru.rmntim.language.token.Token;
 import java.util.List;
 
 public class Interpreter implements Expression.Visitor<Object>, Statement.Visitor<Void> {
-    private final Environment environment = new Environment();
+    private Environment environment = new Environment();
 
     public void interpret(final List<Statement> statements) {
         try {
@@ -147,6 +147,25 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
 
         environment.define(statement.getName().literal(), value);
         return null;
+    }
+
+    @Override
+    public Void visit(Statement.Block statement) {
+        executeBlock(statement.getStatements(), new Environment(environment));
+        return null;
+    }
+
+    private void executeBlock(List<Statement> statements, Environment environment) {
+        var previousEnv = this.environment;
+        try {
+            this.environment = environment;
+
+            for (var statement : statements) {
+                execute(statement);
+            }
+        } finally {
+            this.environment = previousEnv;
+        }
     }
 
     private void checkNumberOperands(Token operator, Object... operands) {
