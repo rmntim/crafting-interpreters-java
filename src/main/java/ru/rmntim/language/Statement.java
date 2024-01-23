@@ -13,6 +13,8 @@ public abstract class Statement {
         T visit(Let statement);
 
         T visit(Block statement);
+
+        T visit(If statement);
     }
 
     public abstract <T> T accept(Visitor<T> visitor);
@@ -83,6 +85,35 @@ public abstract class Statement {
 
         public List<Statement> getStatements() {
             return statements;
+        }
+
+        @Override
+        public <T> T accept(Visitor<T> visitor) {
+            return visitor.visit(this);
+        }
+    }
+
+    public static class If extends Statement {
+        private final Expression condition;
+        private final Statement thenBranch;
+        private final Statement elseBranch;
+
+        public If(Expression condition, Statement thenBranch, Statement elseBranch) {
+            this.condition = condition;
+            this.thenBranch = thenBranch;
+            this.elseBranch = elseBranch;
+        }
+
+        public Expression getCondition() {
+            return condition;
+        }
+
+        public Statement getThenBranch() {
+            return thenBranch;
+        }
+
+        public Statement getElseBranch() {
+            return elseBranch;
         }
 
         @Override
