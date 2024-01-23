@@ -52,6 +52,9 @@ public class Parser {
     }
 
     private Statement statement() {
+        if (expect(IF)) {
+            return ifStatement();
+        }
         if (expect(PRINT)) {
             return printStatement();
         }
@@ -59,6 +62,17 @@ public class Parser {
             return new Statement.Block(block());
         }
         return expressionStatement();
+    }
+
+    private Statement ifStatement() {
+        consume(LEFT_PAREN, "Expected '(' after 'if'");
+        var condition = expression();
+        consume(RIGHT_PAREN, "Expected ')' after if condition");
+
+        var thenBranch = statement();
+        var elseBranch = expect(ELSE) ? statement() : null;
+
+        return new Statement.If(condition, thenBranch, elseBranch);
     }
 
     private List<Statement> block() {
