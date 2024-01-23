@@ -3,6 +3,7 @@ package ru.rmntim.language;
 import ru.rmntim.language.token.Token;
 
 import java.util.List;
+import java.util.Optional;
 
 public abstract class Statement {
     public interface Visitor<T> {
@@ -96,12 +97,12 @@ public abstract class Statement {
     public static class If extends Statement {
         private final Expression condition;
         private final Statement thenBranch;
-        private final Statement elseBranch;
+        private final Optional<Statement> elseBranch;
 
         public If(Expression condition, Statement thenBranch, Statement elseBranch) {
             this.condition = condition;
             this.thenBranch = thenBranch;
-            this.elseBranch = elseBranch;
+            this.elseBranch = Optional.of(elseBranch);
         }
 
         public Expression getCondition() {
@@ -112,7 +113,7 @@ public abstract class Statement {
             return thenBranch;
         }
 
-        public Statement getElseBranch() {
+        public Optional<Statement> getElseBranch() {
             return elseBranch;
         }
 
