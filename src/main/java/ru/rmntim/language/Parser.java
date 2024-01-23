@@ -58,10 +58,22 @@ public class Parser {
         if (expect(PRINT)) {
             return printStatement();
         }
+        if (expect(WHILE)) {
+            return whileStatement();
+        }
         if (expect(LEFT_BRACE)) {
             return new Statement.Block(block());
         }
         return expressionStatement();
+    }
+
+    private Statement whileStatement() {
+        consume(LEFT_PAREN, "Expected '(' after 'while'");
+        var condition = expression();
+        consume(RIGHT_PAREN, "Expected ')' after while condition");
+        var body = statement();
+
+        return new Statement.While(condition, body);
     }
 
     private Statement ifStatement() {
@@ -118,7 +130,7 @@ public class Parser {
     }
 
     private Expression assignment() {
-        var expr = equality();
+        var expr = or();
 
         if (expect(EQUAL)) {
             var equals = previous();

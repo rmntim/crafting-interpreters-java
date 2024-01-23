@@ -194,6 +194,14 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
         return null;
     }
 
+    @Override
+    public Void visit(Statement.While statement) {
+        while (isTruthy(evaluate(statement.getCondition()))) {
+            execute(statement.getBody());
+        }
+        return null;
+    }
+
     private void executeBlock(List<Statement> statements, Environment environment) {
         var previousEnv = this.environment;
         try {
