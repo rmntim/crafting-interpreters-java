@@ -197,9 +197,18 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     @Override
     public Void visit(Statement.While statement) {
         while (isTruthy(evaluate(statement.getCondition()))) {
-            execute(statement.getBody());
+            try {
+                execute(statement.getBody());
+            } catch (BreakException be) {
+                break;
+            }
         }
         return null;
+    }
+
+    @Override
+    public Void visit(Statement.Break statement) {
+        throw new BreakException();
     }
 
     private void executeBlock(List<Statement> statements, Environment environment) {

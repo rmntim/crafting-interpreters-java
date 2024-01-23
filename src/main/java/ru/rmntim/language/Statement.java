@@ -18,6 +18,8 @@ public abstract class Statement {
         T visit(If statement);
 
         T visit(While statement);
+
+        T visit(Break statement);
     }
 
     public abstract <T> T accept(Visitor<T> visitor);
@@ -140,6 +142,16 @@ public abstract class Statement {
 
         public Statement getBody() {
             return body;
+        }
+
+        @Override
+        public <T> T accept(Visitor<T> visitor) {
+            return visitor.visit(this);
+        }
+    }
+
+    public static class Break extends Statement {
+        public Break() {
         }
 
         @Override

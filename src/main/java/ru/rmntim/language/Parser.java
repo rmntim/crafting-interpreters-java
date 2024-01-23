@@ -9,6 +9,8 @@ import java.util.List;
 import static ru.rmntim.language.token.TokenType.*;
 
 public class Parser {
+    private boolean inLoop;
+
     private static class ParseError extends RuntimeException {
     }
 
@@ -61,6 +63,9 @@ public class Parser {
         if (expect(PRINT)) {
             return printStatement();
         }
+        if (expect(BREAK)) {
+            return breakStatement();
+        }
         if (expect(WHILE)) {
             return whileStatement();
         }
@@ -68,6 +73,16 @@ public class Parser {
             return new Statement.Block(block());
         }
         return expressionStatement();
+    }
+
+    private Statement breakStatement() {
+        var breakToken = previous();
+        if (!inLoop) {
+            error(breakToken, "`break` only allowed in loops");
+        }
+
+        consume(SEMICOLON, "Expected ';' after 'break'");
+        return new Statement.Break();
     }
 
     private Statement forStatement() {
@@ -88,7 +103,7 @@ public class Parser {
         var increment = check(RIGHT_PAREN) ? null : expression();
         consume(RIGHT_PAREN, "Expected ')' after 'for' clauses");
 
-        var body = statement();
+        var body = loopBody();
 
         if (increment != null) {
             body = new Statement.Block(List.of(body, new Statement.Expr(increment)));
@@ -107,9 +122,17 @@ public class Parser {
         consume(LEFT_PAREN, "Expected '(' after 'while'");
         var condition = expression();
         consume(RIGHT_PAREN, "Expected ')' after while condition");
-        var body = statement();
+
+        var body = loopBody();
 
         return new Statement.While(condition, body);
+    }
+
+    private Statement loopBody() {
+        inLoop = true;
+        var body = statement();
+        inLoop = false;
+        return body;
     }
 
     private Statement ifStatement() {
