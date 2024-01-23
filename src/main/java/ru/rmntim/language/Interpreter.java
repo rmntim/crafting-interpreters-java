@@ -1,6 +1,7 @@
 package ru.rmntim.language;
 
 import ru.rmntim.language.token.Token;
+import ru.rmntim.language.token.TokenType;
 
 import java.util.List;
 
@@ -132,6 +133,23 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
         } else {
             return evaluate(expression.getElseBranch());
         }
+    }
+
+    @Override
+    public Object visit(Expression.Logical expression) {
+        var left = evaluate(expression.getLeft());
+
+        if (expression.getOperator().type() == TokenType.OR) {
+            if (isTruthy(left)) {
+                return left;
+            }
+        } else {
+            if (!isTruthy(left)) {
+                return left;
+            }
+        }
+
+        return evaluate(expression.getRight());
     }
 
     @Override

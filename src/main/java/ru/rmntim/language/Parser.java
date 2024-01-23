@@ -137,6 +137,30 @@ public class Parser {
         return expr;
     }
 
+    private Expression or() {
+        var expr = and();
+
+        while (expect(OR)) {
+            var operator = previous();
+            var right = and();
+            expr = new Expression.Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expression and() {
+        var expr = equality();
+
+        while (expect(AND)) {
+            var operator = previous();
+            var right = equality();
+            expr = new Expression.Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
     private Expression equality() {
         var expr = comparison();
 

@@ -17,6 +17,8 @@ public abstract class Expression {
         T visit(Assignment expression);
 
         T visit(Ternary expression);
+
+        T visit(Logical expression);
     }
 
     public abstract <T> T accept(Visitor<T> visitor);
@@ -168,6 +170,35 @@ public abstract class Expression {
 
         public Expression getCondition() {
             return condition;
+        }
+
+        @Override
+        public <T> T accept(Visitor<T> visitor) {
+            return visitor.visit(this);
+        }
+    }
+
+    public static class Logical extends Expression {
+        private final Expression left;
+        private final Token operator;
+        private final Expression right;
+
+        public Logical(Expression left, Token operator, Expression right) {
+            this.left = left;
+            this.operator = operator;
+            this.right = right;
+        }
+
+        public Expression getRight() {
+            return right;
+        }
+
+        public Token getOperator() {
+            return operator;
+        }
+
+        public Expression getLeft() {
+            return left;
         }
 
         @Override
