@@ -97,12 +97,12 @@ public abstract class Statement {
     public static class If extends Statement {
         private final Expression condition;
         private final Statement thenBranch;
-        private final Optional<Statement> elseBranch;
+        private final Statement elseBranch;
 
         public If(Expression condition, Statement thenBranch, Statement elseBranch) {
             this.condition = condition;
             this.thenBranch = thenBranch;
-            this.elseBranch = Optional.of(elseBranch);
+            this.elseBranch = elseBranch;
         }
 
         public Expression getCondition() {
@@ -114,7 +114,7 @@ public abstract class Statement {
         }
 
         public Optional<Statement> getElseBranch() {
-            return elseBranch;
+            return Optional.ofNullable(elseBranch);
         }
 
         @Override
