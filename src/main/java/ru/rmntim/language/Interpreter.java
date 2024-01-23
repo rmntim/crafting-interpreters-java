@@ -126,6 +126,15 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
+    public Object visit(Expression.Ternary expression) {
+        if (isTruthy(evaluate(expression.getCondition()))) {
+            return evaluate(expression.getThenBranch());
+        } else {
+            return evaluate(expression.getElseBranch());
+        }
+    }
+
+    @Override
     public Void visit(Statement.Expr statement) {
         evaluate(statement.getExpression());
         return null;

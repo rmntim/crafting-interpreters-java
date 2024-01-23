@@ -101,7 +101,20 @@ public class Parser {
     }
 
     private Expression expression() {
-        return assignment();
+        var expr = assignment();
+
+        if (expect(QUESTION)) {
+            var question = previous();
+            var thenBranch = expression();
+
+            if (expect(COLON)) {
+                var elseBranch = expression();
+                return new Expression.Ternary(expr, thenBranch, elseBranch);
+            }
+            throw error(question, "Expected else branch for ternary expression");
+        }
+
+        return expr;
     }
 
     private Expression assignment() {
