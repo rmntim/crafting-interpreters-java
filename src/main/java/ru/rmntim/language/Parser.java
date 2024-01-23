@@ -52,6 +52,9 @@ public class Parser {
     }
 
     private Statement statement() {
+        if (expect(FOR)) {
+            return forStatement();
+        }
         if (expect(IF)) {
             return ifStatement();
         }
@@ -65,6 +68,39 @@ public class Parser {
             return new Statement.Block(block());
         }
         return expressionStatement();
+    }
+
+    private Statement forStatement() {
+        consume(LEFT_PAREN, "Expected '(' after 'for'");
+
+        Statement initializer;
+        if (expect(SEMICOLON)) {
+            initializer = null;
+        } else if (expect(LET)) {
+            initializer = letDeclaration();
+        } else {
+            initializer = expressionStatement();
+        }
+
+        var condition = check(SEMICOLON) ? new Expression.Literal(true) : expression();
+        consume(SEMICOLON, "Expected ';' after loop condition");
+
+        var increment = check(RIGHT_PAREN) ? null : expression();
+        consume(RIGHT_PAREN, "Expected ')' after 'for' clauses");
+
+        var body = statement();
+
+        if (increment != null) {
+            body = new Statement.Block(List.of(body, new Statement.Expr(increment)));
+        }
+
+        body = new Statement.While(condition, body);
+
+        if (initializer != null) {
+            body = new Statement.Block(List.of(initializer, body));
+        }
+
+        return body;
     }
 
     private Statement whileStatement() {
