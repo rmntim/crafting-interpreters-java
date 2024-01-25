@@ -287,7 +287,38 @@ public class Parser {
             return new Expression.Unary(operator, right);
         }
 
-        return primary();
+        return call();
+    }
+
+    private Expression call() {
+        var expr = primary();
+
+        while (true) {
+            if (expect(LEFT_PAREN)) {
+                expr = finishCall(expr);
+            } else {
+                break;
+            }
+        }
+
+        return expr;
+    }
+
+    private Expression finishCall(Expression calee) {
+        var arguments = new ArrayList<Expression>();
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (arguments.size() >= 255) {
+                    //noinspection ThrowableNotThrown
+                    error(peek(), "Reached the limit of arguments (255)");
+                }
+                arguments.add(expression());
+            } while (expect(COMMA));
+        }
+
+        var paren = consume(RIGHT_PAREN, "Expected ')' after arguments to a function call");
+
+        return new Expression.Call(calee, paren, arguments);
     }
 
     private Expression primary() {

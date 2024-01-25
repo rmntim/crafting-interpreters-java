@@ -3,6 +3,7 @@ package ru.rmntim.language;
 import ru.rmntim.language.token.Token;
 import ru.rmntim.language.token.TokenType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Interpreter implements Expression.Visitor<Object>, Statement.Visitor<Void> {
@@ -150,6 +151,29 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
         }
 
         return evaluate(expression.getRight());
+    }
+
+    @Override
+    public Object visit(Expression.Call expression) {
+        var callee = evaluate(expression.getCalee());
+
+        var arguments = new ArrayList<Object>();
+        for (var argument : expression.getArguments()) {
+            arguments.add(evaluate(argument));
+        }
+
+        if (!(callee instanceof LoxCallable function)) {
+            throw new RuntimeError(expression.getParen(),
+                    "Call to a non-callable object");
+        }
+
+        if (arguments.size() != function.arity()) {
+            throw new RuntimeError(expression.getParen(),
+                    "Expected " + function.arity() +
+                            " arguments but got " + arguments.size());
+        }
+
+        return function.call(this, arguments);
     }
 
     @Override
