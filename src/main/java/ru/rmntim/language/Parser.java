@@ -31,6 +31,9 @@ public class Parser {
 
     private Statement declaration() {
         try {
+            if (expect(FUNCTION)) {
+                return function("function");
+            }
             if (expect(LET)) {
                 return letDeclaration();
             }
@@ -39,6 +42,28 @@ public class Parser {
             synchronize();
             return null;
         }
+    }
+
+    private Statement function(String kind) {
+        var name = consume(IDENTIFIER, "Expected " + kind + " name");
+
+        consume(LEFT_PAREN, "Expected '(' after " + kind + " name");
+        var parameters = new ArrayList<Token>();
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (parameters.size() >= 255) {
+                    //noinspection ThrowableNotThrown
+                    error(peek(), "Reached the limit of arguments (255)");
+                }
+
+                parameters.add(consume(IDENTIFIER, "Expected parameter name"));
+            } while (expect(COMMA));
+        }
+        consume(RIGHT_PAREN, "Expected ')' after parameters");
+
+        consume(LEFT_BRACE, "Expected '{' before " + kind + " body");
+        var body = block();
+        return new Statement.Function(name, parameters, body);
     }
 
     private Statement letDeclaration() {
@@ -305,7 +330,7 @@ public class Parser {
         return expr;
     }
 
-    private Expression finishCall(Expression calee) {
+    private Expression finishCall(Expression callee) {
         var arguments = new ArrayList<Expression>();
         if (!check(RIGHT_PAREN)) {
             do {
@@ -319,7 +344,7 @@ public class Parser {
 
         var paren = consume(RIGHT_PAREN, "Expected ')' after arguments to a function call");
 
-        return new Expression.Call(calee, paren, arguments);
+        return new Expression.Call(callee, paren, arguments);
     }
 
     private Expression primary() {

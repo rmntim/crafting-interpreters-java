@@ -20,6 +20,8 @@ public abstract class Statement {
         T visit(While statement);
 
         T visit(Break statement);
+
+        T visit(Function statement);
     }
 
     public abstract <T> T accept(Visitor<T> visitor);
@@ -152,6 +154,35 @@ public abstract class Statement {
 
     public static class Break extends Statement {
         public Break() {
+        }
+
+        @Override
+        public <T> T accept(Visitor<T> visitor) {
+            return visitor.visit(this);
+        }
+    }
+
+    public static class Function extends Statement {
+        private final Token name;
+        private final List<Token> params;
+        private final List<Statement> body;
+
+        public Function(Token name, List<Token> params, List<Statement> body) {
+            this.name = name;
+            this.params = params;
+            this.body = body;
+        }
+
+        public Token getName() {
+            return name;
+        }
+
+        public List<Token> getParams() {
+            return params;
+        }
+
+        public List<Statement> getBody() {
+            return body;
         }
 
         @Override

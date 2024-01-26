@@ -7,7 +7,50 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Interpreter implements Expression.Visitor<Object>, Statement.Visitor<Void> {
-    private Environment environment = new Environment();
+    private final Environment globals = new Environment();
+    private Environment environment = globals;
+
+    public Interpreter() {
+        globals.define("time", new LoxCallable() {
+
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(Interpreter interpreter, List<Variable> arguments) {
+                return (double) System.currentTimeMillis() / 1000.0;
+            }
+
+            @Override
+            public String toString() {
+                return "<native fn>";
+            }
+        });
+
+        globals.define("print", new LoxCallable() {
+            @Override
+            public int arity() {
+                return 1;
+            }
+
+            @Override
+            public Object call(Interpreter interpreter, List<Variable> arguments) {
+                System.out.println(arguments.getFirst());
+                return null;
+            }
+
+            @Override
+            public String toString() {
+                return "<native fn>";
+            }
+        });
+    }
+
+    public Environment getGlobals() {
+        return this.globals;
+    }
 
     public void interpret(final List<Statement> statements) {
         try {
@@ -235,7 +278,14 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
         throw new BreakException();
     }
 
-    private void executeBlock(List<Statement> statements, Environment environment) {
+    @Override
+    public Void visit(Statement.Function statement) {
+        var function = new LoxFunction(statement);
+        environment.define(statement.getName().literal(), function);
+        return null;
+    }
+
+    public void executeBlock(List<Statement> statements, Environment environment) {
         var previousEnv = this.environment;
         try {
             this.environment = environment;
