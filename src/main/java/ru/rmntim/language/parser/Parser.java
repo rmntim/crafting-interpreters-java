@@ -12,8 +12,6 @@ import java.util.List;
 import static ru.rmntim.language.token.TokenType.*;
 
 public class Parser {
-    private boolean inLoop;
-
     private static class ParseError extends RuntimeException {
     }
 
@@ -112,13 +110,8 @@ public class Parser {
 
     private Statement breakStatement() {
         var breakToken = previous();
-        if (!inLoop) {
-            //noinspection ThrowableNotThrown
-            error(breakToken, "`break` only allowed in loops");
-        }
-
         consume(SEMICOLON, "Expected ';' after 'break'");
-        return new Break();
+        return new Break(breakToken);
     }
 
     private Statement forStatement() {
@@ -139,7 +132,7 @@ public class Parser {
         var increment = check(RIGHT_PAREN) ? null : expression();
         consume(RIGHT_PAREN, "Expected ')' after 'for' clauses");
 
-        var body = loopBody();
+        var body = statement();
 
         if (increment != null) {
             body = new Block(List.of(body, new Expr(increment)));
@@ -159,16 +152,9 @@ public class Parser {
         var condition = expression();
         consume(RIGHT_PAREN, "Expected ')' after while condition");
 
-        var body = loopBody();
+        var body = statement();
 
         return new While(condition, body);
-    }
-
-    private Statement loopBody() {
-        inLoop = true;
-        var body = statement();
-        inLoop = false;
-        return body;
     }
 
     private Statement ifStatement() {

@@ -117,6 +117,13 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
         var left = evaluate(expression.getLeft());
         var right = evaluate(expression.getRight());
 
+        if (left instanceof Variable) {
+            left = ((Variable) left).getValue();
+        }
+        if (right instanceof Variable) {
+            right = ((Variable) right).getValue();
+        }
+
         return switch (expression.getOperator().type()) {
             case MINUS -> {
                 checkNumberOperands(expression.getOperator(), left, right);
@@ -316,7 +323,12 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
 
     private void checkNumberOperands(Token operator, Object... operands) {
         for (var operand : operands) {
+            if (operand instanceof Variable) {
+                operand = ((Variable) operand).getValue();
+            }
             if (!(operand instanceof Double)) {
+                System.err.println("[DBG] " + operand);
+                System.err.println(operand.getClass());
                 throw new RuntimeError(operator, "Operand must be a number");
             }
         }

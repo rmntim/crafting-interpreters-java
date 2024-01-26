@@ -15,6 +15,7 @@ public class Resolver implements Expression.Visitor<Void>, Statement.Visitor<Voi
     private final Interpreter interpreter;
     private final Stack<Map<String, Boolean>> scopes = new Stack<>();
     private FunctionType currentFunction = FunctionType.NONE;
+    private boolean inLoop = false;
 
     public Resolver(Interpreter interpreter) {
         this.interpreter = interpreter;
@@ -120,13 +121,18 @@ public class Resolver implements Expression.Visitor<Void>, Statement.Visitor<Voi
 
     @Override
     public Void visit(While statement) {
+        inLoop = true;
         resolve(statement.getCondition());
         resolve(statement.getBody());
+        inLoop = false;
         return null;
     }
 
     @Override
     public Void visit(Break statement) {
+        if (!inLoop) {
+            ErrorReporter.error(statement.getName(), "`break` only allowed in loops");
+        }
         return null;
     }
 
