@@ -55,10 +55,6 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
         });
     }
 
-    public Environment getGlobals() {
-        return this.globals;
-    }
-
     public void interpret(final List<Statement> statements) {
         try {
             for (var statement : statements) {
@@ -284,7 +280,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
 
     @Override
     public Void visit(Function statement) {
-        var function = new LoxFunction(statement);
+        var function = new LoxFunction(statement, environment);
         environment.define(statement.getName().literal(), function);
         return null;
     }

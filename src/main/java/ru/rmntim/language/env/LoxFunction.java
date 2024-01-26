@@ -6,7 +6,7 @@ import ru.rmntim.language.interpreter.statement.Function;
 
 import java.util.List;
 
-public record LoxFunction(Function declaration) implements LoxCallable {
+public record LoxFunction(Function declaration, Environment closure) implements LoxCallable {
 
     @Override
     public int arity() {
@@ -15,7 +15,7 @@ public record LoxFunction(Function declaration) implements LoxCallable {
 
     @Override
     public Object call(Interpreter interpreter, List<Variable> arguments) {
-        var environment = new Environment(interpreter.getGlobals());
+        var environment = new Environment(closure);
         for (int i = 0; i < declaration.getParams().size(); ++i) {
             environment.define(declaration.getParams().get(i).literal(), arguments.get(i));
         }
