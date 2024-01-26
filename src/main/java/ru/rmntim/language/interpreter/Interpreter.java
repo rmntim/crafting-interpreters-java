@@ -233,13 +233,6 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
-    public Void visit(Print statement) {
-        var value = evaluate(statement.getExpression());
-        System.out.println(stringify(value));
-        return null;
-    }
-
-    @Override
     public Void visit(Let statement) {
         var variable = new Variable();
 

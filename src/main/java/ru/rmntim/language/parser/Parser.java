@@ -88,9 +88,6 @@ public class Parser {
         if (expect(IF)) {
             return ifStatement();
         }
-        if (expect(PRINT)) {
-            return printStatement();
-        }
         if (expect(BREAK)) {
             return breakStatement();
         }
@@ -192,12 +189,6 @@ public class Parser {
         var expr = expression();
         consume(SEMICOLON, "Expected ';' after expression");
         return new Expr(expr);
-    }
-
-    private Statement printStatement() {
-        var expr = expression();
-        consume(SEMICOLON, "Expected ';' after expression");
-        return new Print(expr);
     }
 
     private Expression expression() {
@@ -394,7 +385,6 @@ public class Parser {
                 case FOR:
                 case IF:
                 case WHILE:
-                case PRINT:
                 case RETURN:
                     return;
             }
