@@ -17,8 +17,12 @@ public class Environment {
         this.parent = parent;
     }
 
-    public void define(String name, Object value) {
+    public void define(String name, Variable value) {
         variables.put(name, value);
+    }
+
+    public void define(String name, LoxCallable callable) {
+        variables.put(name, callable);
     }
 
     public Object get(Token name) {
@@ -60,5 +64,14 @@ public class Environment {
         }
 
         throw new RuntimeError(name, "Undefined variable '" + name.literal() + "'");
+    }
+
+    @Override
+    public String toString() {
+        var sb = new StringBuilder();
+        this.variables.forEach((String key, Object value) -> {
+            sb.append(key).append(" -> ").append(value).append('\n');
+        });
+        return sb.toString();
     }
 }

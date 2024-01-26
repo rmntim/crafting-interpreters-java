@@ -9,6 +9,11 @@ public class Variable {
         this.initialized = false;
     }
 
+    public Variable(Object value) {
+        this.value = value;
+        this.initialized = true;
+    }
+
     public Object getValue() {
         return value;
     }
@@ -23,5 +28,10 @@ public class Variable {
 
     public void setInitialized() {
         this.initialized = true;
+    }
+
+    @Override
+    public String toString() {
+        return initialized ? value.toString() : "<uninitialized variable>";
     }
 }

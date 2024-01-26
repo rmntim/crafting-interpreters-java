@@ -157,9 +157,9 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     public Object visit(Expression.Call expression) {
         var callee = evaluate(expression.getCalee());
 
-        var arguments = new ArrayList<Object>();
+        var arguments = new ArrayList<Variable>();
         for (var argument : expression.getArguments()) {
-            arguments.add(evaluate(argument));
+            arguments.add(new Variable(evaluate(argument)));
         }
 
         if (!(callee instanceof LoxCallable function)) {
