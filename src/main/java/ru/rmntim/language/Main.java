@@ -1,5 +1,10 @@
 package ru.rmntim.language;
 
+import ru.rmntim.language.interpreter.Interpreter;
+import ru.rmntim.language.parser.Parser;
+import ru.rmntim.language.parser.Scanner;
+import ru.rmntim.language.util.ErrorReporter;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

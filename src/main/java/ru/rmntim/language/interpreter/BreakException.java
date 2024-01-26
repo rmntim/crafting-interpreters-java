@@ -1,4 +1,4 @@
-package ru.rmntim.language;
+package ru.rmntim.language.interpreter;
 
 public class BreakException extends RuntimeException {
 }

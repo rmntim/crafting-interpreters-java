@@ -1,4 +1,6 @@
-package ru.rmntim.language;
+package ru.rmntim.language.env;
+
+import ru.rmntim.language.interpreter.Interpreter;
 
 import java.util.List;
 

@@ -1,8 +1,11 @@
-package ru.rmntim.language;
+package ru.rmntim.language.env;
+
+import ru.rmntim.language.interpreter.Interpreter;
+import ru.rmntim.language.interpreter.statement.Function;
 
 import java.util.List;
 
-public record LoxFunction(Statement.Function declaration) implements LoxCallable {
+public record LoxFunction(Function declaration) implements LoxCallable {
 
     @Override
     public int arity() {

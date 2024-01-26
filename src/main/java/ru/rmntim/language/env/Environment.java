@@ -1,5 +1,6 @@
-package ru.rmntim.language;
+package ru.rmntim.language.env;
 
+import ru.rmntim.language.interpreter.RuntimeError;
 import ru.rmntim.language.token.Token;
 
 import java.util.HashMap;

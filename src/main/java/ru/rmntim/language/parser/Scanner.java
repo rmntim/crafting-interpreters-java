@@ -1,7 +1,8 @@
-package ru.rmntim.language;
+package ru.rmntim.language.parser;
 
 import ru.rmntim.language.token.Token;
 import ru.rmntim.language.token.TokenType;
+import ru.rmntim.language.util.ErrorReporter;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,7 +1,14 @@
-package ru.rmntim.language;
+package ru.rmntim.language.interpreter;
 
+import ru.rmntim.language.env.Environment;
+import ru.rmntim.language.env.LoxCallable;
+import ru.rmntim.language.env.LoxFunction;
+import ru.rmntim.language.env.Variable;
+import ru.rmntim.language.interpreter.expression.*;
+import ru.rmntim.language.interpreter.statement.*;
 import ru.rmntim.language.token.Token;
 import ru.rmntim.language.token.TokenType;
+import ru.rmntim.language.util.ErrorReporter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,17 +86,17 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
-    public Object visit(Expression.Literal expression) {
+    public Object visit(Literal expression) {
         return expression.getValue();
     }
 
     @Override
-    public Object visit(Expression.Grouping expression) {
+    public Object visit(Grouping expression) {
         return evaluate(expression.getSubExpression());
     }
 
     @Override
-    public Object visit(Expression.Unary expression) {
+    public Object visit(Unary expression) {
         var right = evaluate(expression.getRight());
 
         return switch (expression.getOperator().type()) {
@@ -103,7 +110,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
-    public Object visit(Expression.Binary expression) {
+    public Object visit(Binary expression) {
         var left = evaluate(expression.getLeft());
         var right = evaluate(expression.getRight());
 
@@ -159,19 +166,19 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
-    public Object visit(Expression.Variable expression) {
+    public Object visit(ru.rmntim.language.interpreter.expression.Variable expression) {
         return environment.get(expression.getName());
     }
 
     @Override
-    public Object visit(Expression.Assignment expression) {
+    public Object visit(Assignment expression) {
         var value = evaluate(expression.getValue());
         environment.assign(expression.getName(), value);
         return value;
     }
 
     @Override
-    public Object visit(Expression.Ternary expression) {
+    public Object visit(Ternary expression) {
         if (isTruthy(evaluate(expression.getCondition()))) {
             return evaluate(expression.getThenBranch());
         } else {
@@ -180,7 +187,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
-    public Object visit(Expression.Logical expression) {
+    public Object visit(Logical expression) {
         var left = evaluate(expression.getLeft());
 
         if (expression.getOperator().type() == TokenType.OR) {
@@ -197,7 +204,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
-    public Object visit(Expression.Call expression) {
+    public Object visit(Call expression) {
         var callee = evaluate(expression.getCalee());
 
         var arguments = new ArrayList<Variable>();
@@ -220,20 +227,20 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
-    public Void visit(Statement.Expr statement) {
+    public Void visit(Expr statement) {
         evaluate(statement.getExpression());
         return null;
     }
 
     @Override
-    public Void visit(Statement.Print statement) {
+    public Void visit(Print statement) {
         var value = evaluate(statement.getExpression());
         System.out.println(stringify(value));
         return null;
     }
 
     @Override
-    public Void visit(Statement.Let statement) {
+    public Void visit(Let statement) {
         var variable = new Variable();
 
         if (statement.getInitializer() != null) {
@@ -246,13 +253,13 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
-    public Void visit(Statement.Block statement) {
+    public Void visit(Block statement) {
         executeBlock(statement.getStatements(), new Environment(environment));
         return null;
     }
 
     @Override
-    public Void visit(Statement.If statement) {
+    public Void visit(If statement) {
         if (isTruthy(evaluate(statement.getCondition()))) {
             execute(statement.getThenBranch());
         } else if (statement.getElseBranch().isPresent()) {
@@ -262,7 +269,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
-    public Void visit(Statement.While statement) {
+    public Void visit(While statement) {
         while (isTruthy(evaluate(statement.getCondition()))) {
             try {
                 execute(statement.getBody());
@@ -274,12 +281,12 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
-    public Void visit(Statement.Break statement) {
+    public Void visit(Break statement) {
         throw new BreakException();
     }
 
     @Override
-    public Void visit(Statement.Function statement) {
+    public Void visit(Function statement) {
         var function = new LoxFunction(statement);
         environment.define(statement.getName().literal(), function);
         return null;

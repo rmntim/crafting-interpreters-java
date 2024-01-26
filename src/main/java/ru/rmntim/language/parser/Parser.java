@@ -1,7 +1,10 @@
-package ru.rmntim.language;
+package ru.rmntim.language.parser;
 
+import ru.rmntim.language.interpreter.expression.*;
+import ru.rmntim.language.interpreter.statement.*;
 import ru.rmntim.language.token.Token;
 import ru.rmntim.language.token.TokenType;
+import ru.rmntim.language.util.ErrorReporter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +66,7 @@ public class Parser {
 
         consume(LEFT_BRACE, "Expected '{' before " + kind + " body");
         var body = block();
-        return new Statement.Function(name, parameters, body);
+        return new Function(name, parameters, body);
     }
 
     private Statement letDeclaration() {
@@ -75,7 +78,7 @@ public class Parser {
         }
 
         consume(SEMICOLON, "Expected ';' after variable declaration");
-        return new Statement.Let(name, initializer);
+        return new Let(name, initializer);
     }
 
     private Statement statement() {
@@ -95,7 +98,7 @@ public class Parser {
             return whileStatement();
         }
         if (expect(LEFT_BRACE)) {
-            return new Statement.Block(block());
+            return new Block(block());
         }
         return expressionStatement();
     }
@@ -108,7 +111,7 @@ public class Parser {
         }
 
         consume(SEMICOLON, "Expected ';' after 'break'");
-        return new Statement.Break();
+        return new Break();
     }
 
     private Statement forStatement() {
@@ -123,7 +126,7 @@ public class Parser {
             initializer = expressionStatement();
         }
 
-        var condition = check(SEMICOLON) ? new Expression.Literal(true) : expression();
+        var condition = check(SEMICOLON) ? new Literal(true) : expression();
         consume(SEMICOLON, "Expected ';' after loop condition");
 
         var increment = check(RIGHT_PAREN) ? null : expression();
@@ -132,13 +135,13 @@ public class Parser {
         var body = loopBody();
 
         if (increment != null) {
-            body = new Statement.Block(List.of(body, new Statement.Expr(increment)));
+            body = new Block(List.of(body, new Expr(increment)));
         }
 
-        body = new Statement.While(condition, body);
+        body = new While(condition, body);
 
         if (initializer != null) {
-            body = new Statement.Block(List.of(initializer, body));
+            body = new Block(List.of(initializer, body));
         }
 
         return body;
@@ -151,7 +154,7 @@ public class Parser {
 
         var body = loopBody();
 
-        return new Statement.While(condition, body);
+        return new While(condition, body);
     }
 
     private Statement loopBody() {
@@ -169,7 +172,7 @@ public class Parser {
         var thenBranch = statement();
         var elseBranch = expect(ELSE) ? statement() : null;
 
-        return new Statement.If(condition, thenBranch, elseBranch);
+        return new If(condition, thenBranch, elseBranch);
     }
 
     private List<Statement> block() {
@@ -188,13 +191,13 @@ public class Parser {
     private Statement expressionStatement() {
         var expr = expression();
         consume(SEMICOLON, "Expected ';' after expression");
-        return new Statement.Expr(expr);
+        return new Expr(expr);
     }
 
     private Statement printStatement() {
         var expr = expression();
         consume(SEMICOLON, "Expected ';' after expression");
-        return new Statement.Print(expr);
+        return new Print(expr);
     }
 
     private Expression expression() {
@@ -206,7 +209,7 @@ public class Parser {
 
             if (expect(COLON)) {
                 var elseBranch = expression();
-                return new Expression.Ternary(expr, thenBranch, elseBranch);
+                return new Ternary(expr, thenBranch, elseBranch);
             }
             throw error(question, "Expected else branch for ternary expression");
         }
@@ -221,9 +224,9 @@ public class Parser {
             var equals = previous();
             var value = assignment();
 
-            if (expr instanceof Expression.Variable) {
-                var name = ((Expression.Variable) expr).getName();
-                return new Expression.Assignment(name, value);
+            if (expr instanceof Variable) {
+                var name = ((Variable) expr).getName();
+                return new Assignment(name, value);
             }
 
             // Not throwing the error, because parser technically is in right state, so nothing is broken
@@ -240,7 +243,7 @@ public class Parser {
         while (expect(OR)) {
             var operator = previous();
             var right = and();
-            expr = new Expression.Logical(expr, operator, right);
+            expr = new Logical(expr, operator, right);
         }
 
         return expr;
@@ -252,7 +255,7 @@ public class Parser {
         while (expect(AND)) {
             var operator = previous();
             var right = equality();
-            expr = new Expression.Logical(expr, operator, right);
+            expr = new Logical(expr, operator, right);
         }
 
         return expr;
@@ -264,7 +267,7 @@ public class Parser {
         while (expect(BANG_EQUAL, EQUAL_EQUAL)) {
             var operator = previous();
             var right = comparison();
-            expr = new Expression.Binary(expr, operator, right);
+            expr = new Binary(expr, operator, right);
         }
 
         return expr;
@@ -276,7 +279,7 @@ public class Parser {
         while (expect(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
             var operator = previous();
             var right = term();
-            expr = new Expression.Binary(expr, operator, right);
+            expr = new Binary(expr, operator, right);
         }
 
         return expr;
@@ -288,7 +291,7 @@ public class Parser {
         while (expect(MINUS, PLUS)) {
             var operator = previous();
             var right = factor();
-            expr = new Expression.Binary(expr, operator, right);
+            expr = new Binary(expr, operator, right);
         }
 
         return expr;
@@ -300,7 +303,7 @@ public class Parser {
         while (expect(SLASH, STAR)) {
             var operator = previous();
             var right = unary();
-            expr = new Expression.Binary(expr, operator, right);
+            expr = new Binary(expr, operator, right);
         }
 
         return expr;
@@ -310,7 +313,7 @@ public class Parser {
         if (expect(BANG, MINUS)) {
             var operator = previous();
             var right = unary();
-            return new Expression.Unary(operator, right);
+            return new Unary(operator, right);
         }
 
         return call();
@@ -344,26 +347,26 @@ public class Parser {
 
         var paren = consume(RIGHT_PAREN, "Expected ')' after arguments to a function call");
 
-        return new Expression.Call(callee, paren, arguments);
+        return new Call(callee, paren, arguments);
     }
 
     private Expression primary() {
-        if (expect(FALSE)) return new Expression.Literal(false);
-        if (expect(TRUE)) return new Expression.Literal(true);
-        if (expect(NIL)) return new Expression.Literal(null);
+        if (expect(FALSE)) return new Literal(false);
+        if (expect(TRUE)) return new Literal(true);
+        if (expect(NIL)) return new Literal(null);
 
         if (expect(NUMBER, STRING)) {
-            return new Expression.Literal(previous().value());
+            return new Literal(previous().value());
         }
 
         if (expect(IDENTIFIER)) {
-            return new Expression.Variable(previous());
+            return new Variable(previous());
         }
 
         if (expect(LEFT_PAREN)) {
             var expr = expression();
             consume(RIGHT_PAREN, "Expected ')' after expression");
-            return new Expression.Grouping(expr);
+            return new Grouping(expr);
         }
 
         throw error(peek(), "Expected expression");

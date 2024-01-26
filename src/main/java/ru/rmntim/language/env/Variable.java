@@ -1,4 +1,4 @@
-package ru.rmntim.language;
+package ru.rmntim.language.env;
 
 public class Variable {
     private Object value;
