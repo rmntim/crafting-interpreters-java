@@ -11,11 +11,14 @@ import ru.rmntim.language.token.TokenType;
 import ru.rmntim.language.util.ErrorReporter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Interpreter implements Expression.Visitor<Object>, Statement.Visitor<Void> {
     private final Environment globals = new Environment();
     private Environment environment = globals;
+    private final Map<Expression, Integer> locals = new HashMap<>();
 
     public Interpreter() {
         globals.define("time", new LoxCallable() {
@@ -167,13 +170,20 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
 
     @Override
     public Object visit(ru.rmntim.language.interpreter.expression.Variable expression) {
-        return environment.get(expression.getName());
+        return lookUpVariable(expression.getName(), expression);
     }
 
     @Override
     public Object visit(Assignment expression) {
         var value = evaluate(expression.getValue());
-        environment.assign(expression.getName(), value);
+
+        var distance = locals.get(expression);
+        if (distance != null) {
+            environment.assignAt(distance, expression.getName(), value);
+        } else {
+            globals.assign(expression.getName(), value);
+        }
+
         return value;
     }
 
@@ -287,7 +297,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
 
     @Override
     public Void visit(Return statement) {
-        var value = (statement.getValue() != null) ? evaluate(statement.getValue()) : null;
+        var value = (statement.getValue().isPresent()) ? evaluate(statement.getValue().get()) : null;
         throw new ReturnException(value);
     }
 
@@ -338,5 +348,18 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
 
     private void execute(Statement statement) {
         statement.accept(this);
+    }
+
+    public void resolve(Expression expression, int depth) {
+        locals.put(expression, depth);
+    }
+
+    private Object lookUpVariable(Token name, Expression expression) {
+        var distance = locals.get(expression);
+        if (distance != null) {
+            return environment.getAt(distance, name.literal());
+        } else {
+            return globals.get(name);
+        }
     }
 }

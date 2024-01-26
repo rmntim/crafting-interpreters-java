@@ -3,6 +3,7 @@ package ru.rmntim.language;
 import ru.rmntim.language.interpreter.Interpreter;
 import ru.rmntim.language.parser.Parser;
 import ru.rmntim.language.parser.Scanner;
+import ru.rmntim.language.resolver.Resolver;
 import ru.rmntim.language.util.ErrorReporter;
 
 import java.io.BufferedReader;
@@ -58,13 +59,22 @@ public class Main {
         var scanner = new Scanner(source);
         var tokens = scanner.scanTokens();
         var parser = new Parser(tokens);
-        var expr = parser.parse();
+        var statements = parser.parse();
+        var resolver = new Resolver(interpreter);
 
         // Stop if there was a syntax error
         if (ErrorReporter.errorState) {
             return;
         }
 
-        interpreter.interpret(expr);
+        resolver.resolve(statements);
+
+        //  Stop on resolution error
+        //? Maybe should merge this with above
+        if (ErrorReporter.errorState) {
+            return;
+        }
+
+        interpreter.interpret(statements);
     }
 }

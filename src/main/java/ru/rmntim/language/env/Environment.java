@@ -47,6 +47,18 @@ public class Environment {
         throw new RuntimeError(name, "Undefined variable '" + name.literal() + "'");
     }
 
+    public Object getAt(int distance, String name) {
+        return ancestor(distance).variables.get(name);
+    }
+
+    private Environment ancestor(int distance) {
+        var environment = this;
+        for (int i = 0; i < distance; ++i) {
+            environment = environment.parent;
+        }
+        return environment;
+    }
+
     public void assign(Token name, Object newValue) {
         if (variables.containsKey(name.literal())) {
             var value = variables.get(name.literal());
@@ -65,6 +77,10 @@ public class Environment {
         }
 
         throw new RuntimeError(name, "Undefined variable '" + name.literal() + "'");
+    }
+
+    public void assignAt(int distance, Token name, Object value) {
+        ancestor(distance).variables.put(name.literal(), value);
     }
 
     @Override
