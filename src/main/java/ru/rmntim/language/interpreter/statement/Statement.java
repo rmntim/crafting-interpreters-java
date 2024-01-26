@@ -4,8 +4,6 @@ public abstract class Statement {
     public interface Visitor<T> {
         T visit(Expr statement);
 
-        T visit(Print statement);
-
         T visit(Let statement);
 
         T visit(Block statement);
