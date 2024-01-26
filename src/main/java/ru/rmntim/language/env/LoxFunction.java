@@ -1,6 +1,7 @@
 package ru.rmntim.language.env;
 
 import ru.rmntim.language.interpreter.Interpreter;
+import ru.rmntim.language.interpreter.ReturnException;
 import ru.rmntim.language.interpreter.statement.Function;
 
 import java.util.List;
@@ -18,8 +19,11 @@ public record LoxFunction(Function declaration) implements LoxCallable {
         for (int i = 0; i < declaration.getParams().size(); ++i) {
             environment.define(declaration.getParams().get(i).literal(), arguments.get(i));
         }
-
-        interpreter.executeBlock(declaration.getBody(), environment);
+        try {
+            interpreter.executeBlock(declaration.getBody(), environment);
+        } catch (ReturnException returnValue) {
+            return returnValue.getValue();
+        }
         return null;
     }
 

@@ -88,6 +88,9 @@ public class Parser {
         if (expect(IF)) {
             return ifStatement();
         }
+        if (expect(RETURN)) {
+            return returnStatement();
+        }
         if (expect(BREAK)) {
             return breakStatement();
         }
@@ -98,6 +101,13 @@ public class Parser {
             return new Block(block());
         }
         return expressionStatement();
+    }
+
+    private Statement returnStatement() {
+        var keyword = previous();
+        var value = check(SEMICOLON) ? null : expression();
+        consume(SEMICOLON, "Expected ';' after return value");
+        return new Return(keyword, value);
     }
 
     private Statement breakStatement() {
