@@ -78,6 +78,7 @@ public class Parser {
     private Statement breakStatement() {
         var breakToken = previous();
         if (!inLoop) {
+            //noinspection ThrowableNotThrown
             error(breakToken, "`break` only allowed in loops");
         }
 
