@@ -14,6 +14,7 @@ import java.util.Stack;
 public class Resolver implements Expression.Visitor<Void>, Statement.Visitor<Void> {
     private final Interpreter interpreter;
     private final Stack<Map<String, Boolean>> scopes = new Stack<>();
+    private FunctionType currentFunction = FunctionType.NONE;
 
     public Resolver(Interpreter interpreter) {
         this.interpreter = interpreter;
@@ -133,12 +134,15 @@ public class Resolver implements Expression.Visitor<Void>, Statement.Visitor<Voi
     public Void visit(Function statement) {
         declare(statement.getName());
         define(statement.getName());
-        resolveFunction(statement);
+        resolveFunction(statement, FunctionType.FUNCTION);
         return null;
     }
 
     @Override
     public Void visit(Return statement) {
+        if (currentFunction == FunctionType.NONE) {
+            ErrorReporter.error(statement.getKeyword(), "Unable to return at the top-level");
+        }
         statement.getValue().ifPresent(this::resolve);
         return null;
     }
@@ -192,7 +196,10 @@ public class Resolver implements Expression.Visitor<Void>, Statement.Visitor<Voi
         }
     }
 
-    private void resolveFunction(Function function) {
+    private void resolveFunction(Function function, FunctionType type) {
+        var enclosingFunction = currentFunction;
+        currentFunction = type;
+
         beginScope();
         for (var param : function.getParams()) {
             declare(param);
@@ -200,5 +207,6 @@ public class Resolver implements Expression.Visitor<Void>, Statement.Visitor<Voi
         }
         resolve(function.getBody());
         endScope();
+        currentFunction = enclosingFunction;
     }
 }

@@ -70,7 +70,6 @@ public class Main {
         resolver.resolve(statements);
 
         //  Stop on resolution error
-        //? Maybe should merge this with above
         if (ErrorReporter.errorState) {
             return;
         }
