@@ -44,7 +44,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
 
             @Override
             public Object call(Interpreter interpreter, List<Variable> arguments) {
-                System.out.println(arguments.getFirst());
+                System.out.println(stringify(arguments.getFirst()));
                 return null;
             }
 
@@ -70,6 +70,10 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     private String stringify(Object value) {
+        if (value instanceof Variable) {
+            value = ((Variable) value).getValue();
+        }
+
         if (value == null) {
             return "nil";
         }
