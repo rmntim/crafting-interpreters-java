@@ -231,6 +231,8 @@ public class Parser {
             if (expr instanceof Variable) {
                 var name = ((Variable) expr).getName();
                 return new Assignment(name, value);
+            } else if (expr instanceof Get get) {
+                return new Set(get.getObject(), get.getName(), value);
             }
 
             // Not throwing the error, because parser technically is in right state, so nothing is broken
@@ -329,6 +331,9 @@ public class Parser {
         while (true) {
             if (expect(LEFT_PAREN)) {
                 expr = finishCall(expr);
+            } else if (expect(DOT)) {
+                var name = consume(IDENTIFIER, "Expected property name after '.'");
+                expr = new Get(expr, name);
             } else {
                 break;
             }

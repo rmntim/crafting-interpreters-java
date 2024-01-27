@@ -89,6 +89,19 @@ public class Resolver implements Expression.Visitor<Void>, Statement.Visitor<Voi
     }
 
     @Override
+    public Void visit(Get expression) {
+        resolve(expression.getObject());
+        return null;
+    }
+
+    @Override
+    public Void visit(Set expression) {
+        resolve(expression.getValue());
+        resolve(expression.getObject());
+        return null;
+    }
+
+    @Override
     public Void visit(Expr statement) {
         resolve(statement.getExpression());
         return null;

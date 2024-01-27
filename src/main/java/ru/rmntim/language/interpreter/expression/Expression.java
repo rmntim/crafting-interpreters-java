@@ -19,6 +19,10 @@ public abstract class Expression {
         T visit(Logical expression);
 
         T visit(Call expression);
+
+        T visit(Get expression);
+
+        T visit(Set expression);
     }
 
     public abstract <T> T accept(Visitor<T> visitor);
