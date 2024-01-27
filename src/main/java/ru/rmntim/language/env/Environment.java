@@ -68,6 +68,7 @@ public class Environment {
                 return;
             } else if (value instanceof LoxCallable) {
                 variables.put(name.literal(), newValue);
+                return;
             }
         }
 

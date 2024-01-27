@@ -335,7 +335,19 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
 
     @Override
     public Void visit(Class statement) {
-        environment.define(statement.getName().literal(), (LoxCallable) null);
+        // We must create a LoxCallable object cause if we pass null, we lose the type info
+        // needed for future instanceof checks
+        environment.define(statement.getName().literal(), new LoxCallable() {
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(Interpreter interpreter, List<Variable> arguments) {
+                return null;
+            }
+        });
         var class_ = new LoxClass(statement.getName().literal());
         environment.assign(statement.getName(), class_);
         return null;
