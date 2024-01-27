@@ -1,11 +1,21 @@
 package ru.rmntim.language.interpreter;
 
 import ru.rmntim.language.env.LoxCallable;
+import ru.rmntim.language.env.LoxFunction;
 import ru.rmntim.language.env.Variable;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-public record LoxClass(String name) implements LoxCallable {
+public record LoxClass(String name, Map<String, LoxFunction> methods) implements LoxCallable {
+    public Optional<LoxFunction> findMethod(String name) {
+        if (methods.containsKey(name)) {
+            return Optional.of(methods.get(name));
+        }
+        return Optional.empty();
+    }
+
     @Override
     public String toString() {
         return name;

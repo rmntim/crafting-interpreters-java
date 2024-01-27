@@ -18,6 +18,11 @@ public final class LoxInstance {
             return fields.get(name.literal());
         }
 
+        var method = class_.findMethod(name.literal());
+        if (method.isPresent()) {
+            return method.get();
+        }
+
         throw new RuntimeError(name,
                 "Undefined property '" + name.literal() + "'");
     }

@@ -348,7 +348,14 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
                 return null;
             }
         });
-        var class_ = new LoxClass(statement.getName().literal());
+
+        var methods = new HashMap<String, LoxFunction>();
+        for (var method : statement.getMethods()) {
+            var function = new LoxFunction(method, environment);
+            methods.put(method.getName().literal(), function);
+        }
+
+        var class_ = new LoxClass(statement.getName().literal(), methods);
         environment.assign(statement.getName(), class_);
         return null;
     }

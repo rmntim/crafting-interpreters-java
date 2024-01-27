@@ -171,6 +171,12 @@ public class Resolver implements Expression.Visitor<Void>, Statement.Visitor<Voi
     public Void visit(Class statement) {
         declare(statement.getName());
         define(statement.getName());
+
+        for (var method : statement.getMethods()) {
+            var declaration = FunctionType.METHOD;
+            resolveFunction(method, declaration);
+        }
+
         return null;
     }
 
