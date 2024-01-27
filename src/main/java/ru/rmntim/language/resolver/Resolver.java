@@ -2,6 +2,7 @@ package ru.rmntim.language.resolver;
 
 import ru.rmntim.language.interpreter.Interpreter;
 import ru.rmntim.language.interpreter.expression.*;
+import ru.rmntim.language.interpreter.statement.Class;
 import ru.rmntim.language.interpreter.statement.*;
 import ru.rmntim.language.token.Token;
 import ru.rmntim.language.util.ErrorReporter;
@@ -150,6 +151,13 @@ public class Resolver implements Expression.Visitor<Void>, Statement.Visitor<Voi
             ErrorReporter.error(statement.getKeyword(), "Unable to return at the top-level");
         }
         statement.getValue().ifPresent(this::resolve);
+        return null;
+    }
+
+    @Override
+    public Void visit(Class statement) {
+        declare(statement.getName());
+        define(statement.getName());
         return null;
     }
 

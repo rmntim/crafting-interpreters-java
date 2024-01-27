@@ -5,6 +5,7 @@ import ru.rmntim.language.env.LoxCallable;
 import ru.rmntim.language.env.LoxFunction;
 import ru.rmntim.language.env.Variable;
 import ru.rmntim.language.interpreter.expression.*;
+import ru.rmntim.language.interpreter.statement.Class;
 import ru.rmntim.language.interpreter.statement.*;
 import ru.rmntim.language.token.Token;
 import ru.rmntim.language.token.TokenType;
@@ -306,6 +307,14 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     public Void visit(Return statement) {
         var value = (statement.getValue().isPresent()) ? evaluate(statement.getValue().get()) : null;
         throw new ReturnException(value);
+    }
+
+    @Override
+    public Void visit(Class statement) {
+        environment.define(statement.getName().literal(), (LoxCallable) null);
+        var class_ = new LoxClass(statement.getName().literal());
+        environment.assign(statement.getName(), class_);
+        return null;
     }
 
     public void executeBlock(List<Statement> statements, Environment environment) {

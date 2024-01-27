@@ -1,6 +1,7 @@
 package ru.rmntim.language.parser;
 
 import ru.rmntim.language.interpreter.expression.*;
+import ru.rmntim.language.interpreter.statement.Class;
 import ru.rmntim.language.interpreter.statement.*;
 import ru.rmntim.language.token.Token;
 import ru.rmntim.language.token.TokenType;
@@ -32,6 +33,9 @@ public class Parser {
 
     private Statement declaration() {
         try {
+            if (expect(CLASS)) {
+                return classDeclaration();
+            }
             if (expect(FUNCTION)) {
                 return function("function");
             }
@@ -45,10 +49,23 @@ public class Parser {
         }
     }
 
-    private Statement function(String kind) {
-        var name = consume(IDENTIFIER, "Expected " + kind + " name");
+    private Statement classDeclaration() {
+        var name = consume(IDENTIFIER, "Expected class name");
+        consume(LEFT_BRACE, "Expected '{' after class name");
 
-        consume(LEFT_PAREN, "Expected '(' after " + kind + " name");
+        var methods = new ArrayList<Function>();
+        while (!check(RIGHT_BRACE) && !isEnd()) {
+            methods.add(function("method"));
+        }
+
+        consume(RIGHT_BRACE, "Expected '}' after class body");
+        return new Class(name, methods);
+    }
+
+    private Function function(String type) {
+        var name = consume(IDENTIFIER, "Expected " + type + " name");
+
+        consume(LEFT_PAREN, "Expected '(' after " + type + " name");
         var parameters = new ArrayList<Token>();
         if (!check(RIGHT_PAREN)) {
             do {
@@ -62,7 +79,7 @@ public class Parser {
         }
         consume(RIGHT_PAREN, "Expected ')' after parameters");
 
-        consume(LEFT_BRACE, "Expected '{' before " + kind + " body");
+        consume(LEFT_BRACE, "Expected '{' before " + type + " body");
         var body = block();
         return new Function(name, parameters, body);
     }

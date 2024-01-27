@@ -17,6 +17,8 @@ public abstract class Statement {
         T visit(Function statement);
 
         T visit(Return statement);
+
+        T visit(Class statement);
     }
 
     public abstract <T> T accept(Visitor<T> visitor);
