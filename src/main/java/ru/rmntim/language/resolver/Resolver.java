@@ -175,7 +175,13 @@ public class Resolver implements Expression.Visitor<Void>, Statement.Visitor<Voi
         if (currentFunction == FunctionType.NONE) {
             ErrorReporter.error(statement.getKeyword(), "Unable to return at the top-level");
         }
-        statement.getValue().ifPresent(this::resolve);
+        if (statement.getValue().isPresent()) {
+            if (currentFunction == FunctionType.CONSTRUCTOR) {
+                ErrorReporter.error(statement.getKeyword(),
+                        "Unable to return from a constructor");
+            }
+        }
+        resolve(statement.getValue().get());
         return null;
     }
 
@@ -191,6 +197,9 @@ public class Resolver implements Expression.Visitor<Void>, Statement.Visitor<Voi
 
         for (var method : statement.getMethods()) {
             var declaration = FunctionType.METHOD;
+            if (method.getName().literal().equals("init")) {
+                declaration = FunctionType.CONSTRUCTOR;
+            }
             resolveFunction(method, declaration);
         }
 

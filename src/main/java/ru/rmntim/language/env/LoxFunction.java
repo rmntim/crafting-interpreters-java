@@ -7,11 +7,11 @@ import ru.rmntim.language.interpreter.statement.Function;
 
 import java.util.List;
 
-public record LoxFunction(Function declaration, Environment closure) implements LoxCallable {
+public record LoxFunction(Function declaration, Environment closure, boolean isConstructor) implements LoxCallable {
     public LoxFunction bind(LoxInstance instance) {
         var environment = new Environment(closure);
         environment.define("self", new Variable(instance));
-        return new LoxFunction(declaration, environment);
+        return new LoxFunction(declaration, environment, isConstructor);
     }
 
     @Override
@@ -28,7 +28,14 @@ public record LoxFunction(Function declaration, Environment closure) implements 
         try {
             interpreter.executeBlock(declaration.getBody(), environment);
         } catch (ReturnException returnValue) {
+            if (isConstructor) {
+                return closure.getAt(0, "self");
+            }
             return returnValue.getValue();
+        }
+
+        if (isConstructor) {
+            return closure.getAt(0, "self");
         }
         return null;
     }
@@ -37,5 +44,4 @@ public record LoxFunction(Function declaration, Environment closure) implements 
     public String toString() {
         return "<fn " + declaration.getName().literal() + ">";
     }
-
 }

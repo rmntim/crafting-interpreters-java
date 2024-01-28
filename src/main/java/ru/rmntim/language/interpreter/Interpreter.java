@@ -332,7 +332,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
 
     @Override
     public Void visit(Function statement) {
-        var function = new LoxFunction(statement, environment);
+        var function = new LoxFunction(statement, environment, false);
         environment.define(statement.getName().literal(), function);
         return null;
     }
@@ -361,7 +361,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
 
         var methods = new HashMap<String, LoxFunction>();
         for (var method : statement.getMethods()) {
-            var function = new LoxFunction(method, environment);
+            var function = new LoxFunction(method, environment, method.getName().literal().equals("init"));
             methods.put(method.getName().literal(), function);
         }
 

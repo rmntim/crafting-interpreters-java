@@ -23,12 +23,14 @@ public record LoxClass(String name, Map<String, LoxFunction> methods) implements
 
     @Override
     public int arity() {
-        return 0;
+        return findMethod("init").map(LoxFunction::arity).orElse(0);
     }
 
     @Override
     public Object call(Interpreter interpreter, List<Variable> arguments) {
         var instance = new LoxInstance(this);
+        var constructor = findMethod("init");
+        constructor.ifPresent(init -> init.bind(instance).call(interpreter, arguments));
         return instance;
     }
 }
