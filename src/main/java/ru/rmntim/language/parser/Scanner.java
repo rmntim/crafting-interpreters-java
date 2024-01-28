@@ -33,7 +33,7 @@ public class Scanner {
         keywords.put("or", OR);
         keywords.put("return", RETURN);
         keywords.put("super", SUPER);
-        keywords.put("this", THIS);
+        keywords.put("self", SELF);
         keywords.put("true", TRUE);
         keywords.put("let", LET);
         keywords.put("while", WHILE);
