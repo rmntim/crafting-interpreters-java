@@ -51,6 +51,13 @@ public class Parser {
 
     private Statement classDeclaration() {
         var name = consume(IDENTIFIER, "Expected class name");
+
+        Variable superclass = null;
+        if (expect(LESS)) {
+            consume(IDENTIFIER, "Expected superclass name");
+            superclass = new Variable(previous());
+        }
+
         consume(LEFT_BRACE, "Expected '{' after class name");
 
         var methods = new ArrayList<Function>();
@@ -59,7 +66,7 @@ public class Parser {
         }
 
         consume(RIGHT_BRACE, "Expected '}' after class body");
-        return new Class(name, methods);
+        return new Class(name, superclass, methods);
     }
 
     private Function function(String type) {

@@ -192,6 +192,15 @@ public class Resolver implements Expression.Visitor<Void>, Statement.Visitor<Voi
         declare(statement.getName());
         define(statement.getName());
 
+        if (statement.getSuperclass().isPresent()) {
+            var superclass = statement.getSuperclass().get();
+            if (statement.getName().literal().equals(superclass.getName().literal())) {
+                ErrorReporter.error(superclass.getName(),
+                        "Class can't inherit from itself");
+            }
+            resolve(superclass);
+        }
+
         beginScope();
         scopes.peek().put("self", true);
 

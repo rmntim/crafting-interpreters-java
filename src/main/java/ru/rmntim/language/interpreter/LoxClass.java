@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public record LoxClass(String name, Map<String, LoxFunction> methods) implements LoxCallable {
+public record LoxClass(String name, LoxClass superclass, Map<String, LoxFunction> methods) implements LoxCallable {
     public Optional<LoxFunction> findMethod(String name) {
         if (methods.containsKey(name)) {
             return Optional.of(methods.get(name));

@@ -345,6 +345,15 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
 
     @Override
     public Void visit(Class statement) {
+        Object superclass = null;
+        if (statement.getSuperclass().isPresent()) {
+            superclass = evaluate(statement.getSuperclass().get());
+            if (!(superclass instanceof LoxClass)) {
+                throw new RuntimeError(statement.getSuperclass().get().getName(),
+                        "Superclass must be a class");
+            }
+        }
+
         // We must create a LoxCallable object cause if we pass null, we lose the type info
         // needed for future instanceof checks
         environment.define(statement.getName().literal(), new LoxCallable() {
@@ -365,7 +374,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
             methods.put(method.getName().literal(), function);
         }
 
-        var class_ = new LoxClass(statement.getName().literal(), methods);
+        var class_ = new LoxClass(statement.getName().literal(), (LoxClass) superclass, methods);
         environment.assign(statement.getName(), class_);
         return null;
     }
