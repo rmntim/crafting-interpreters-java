@@ -20,7 +20,7 @@ public final class LoxInstance {
 
         var method = class_.findMethod(name.literal());
         if (method.isPresent()) {
-            return method.get();
+            return method.get().bind(this);
         }
 
         throw new RuntimeError(name,

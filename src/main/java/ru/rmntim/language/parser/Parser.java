@@ -368,6 +368,10 @@ public class Parser {
             return new Literal(previous().value());
         }
 
+        if (expect(SELF)) {
+            return new Self(previous());
+        }
+
         if (expect(IDENTIFIER)) {
             return new Variable(previous());
         }

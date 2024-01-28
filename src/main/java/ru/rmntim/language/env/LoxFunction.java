@@ -1,12 +1,18 @@
 package ru.rmntim.language.env;
 
 import ru.rmntim.language.interpreter.Interpreter;
+import ru.rmntim.language.interpreter.LoxInstance;
 import ru.rmntim.language.interpreter.ReturnException;
 import ru.rmntim.language.interpreter.statement.Function;
 
 import java.util.List;
 
 public record LoxFunction(Function declaration, Environment closure) implements LoxCallable {
+    public LoxFunction bind(LoxInstance instance) {
+        var environment = new Environment(closure);
+        environment.define("self", new Variable(instance));
+        return new LoxFunction(declaration, environment);
+    }
 
     @Override
     public int arity() {
@@ -31,4 +37,5 @@ public record LoxFunction(Function declaration, Environment closure) implements 
     public String toString() {
         return "<fn " + declaration.getName().literal() + ">";
     }
+
 }

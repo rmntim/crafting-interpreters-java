@@ -16,6 +16,7 @@ public class Resolver implements Expression.Visitor<Void>, Statement.Visitor<Voi
     private final Interpreter interpreter;
     private final Stack<Map<String, Boolean>> scopes = new Stack<>();
     private FunctionType currentFunction = FunctionType.NONE;
+    private ClassType currentClass = ClassType.NONE;
     private boolean inLoop = false;
 
     public Resolver(Interpreter interpreter) {
@@ -102,6 +103,17 @@ public class Resolver implements Expression.Visitor<Void>, Statement.Visitor<Voi
     }
 
     @Override
+    public Void visit(Self expression) {
+        if (currentClass == ClassType.NONE) {
+            ErrorReporter.error(expression.getKeyword(),
+                    "'self' outside of classes is not allowed");
+            return null;
+        }
+        resolveLocal(expression, expression.getKeyword());
+        return null;
+    }
+
+    @Override
     public Void visit(Expr statement) {
         resolve(statement.getExpression());
         return null;
@@ -169,14 +181,22 @@ public class Resolver implements Expression.Visitor<Void>, Statement.Visitor<Voi
 
     @Override
     public Void visit(Class statement) {
+        var enclosingClass = currentClass;
+        currentClass = ClassType.CLASS;
         declare(statement.getName());
         define(statement.getName());
+
+        beginScope();
+        scopes.peek().put("self", true);
 
         for (var method : statement.getMethods()) {
             var declaration = FunctionType.METHOD;
             resolveFunction(method, declaration);
         }
 
+        endScope();
+
+        currentClass = enclosingClass;
         return null;
     }
 

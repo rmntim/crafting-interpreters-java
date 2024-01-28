@@ -23,6 +23,8 @@ public abstract class Expression {
         T visit(Get expression);
 
         T visit(Set expression);
+
+        T visit(Self expression);
     }
 
     public abstract <T> T accept(Visitor<T> visitor);

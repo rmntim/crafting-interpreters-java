@@ -247,6 +247,9 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     @Override
     public Object visit(Get expression) {
         var object = evaluate(expression.getObject());
+        if (object instanceof Variable) {
+            object = ((Variable) object).getValue();
+        }
         if (object instanceof LoxInstance instance) {
             return instance.get(expression.getName());
         }
@@ -265,7 +268,12 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
         }
 
         throw new RuntimeError(expression.getName(),
-                "Only instances are allowed to have fields");
+                "Only instances are allowed to have properties");
+    }
+
+    @Override
+    public Object visit(Self expression) {
+        return lookUpVariable(expression.getKeyword(), expression);
     }
 
     @Override
