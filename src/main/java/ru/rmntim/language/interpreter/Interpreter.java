@@ -260,7 +260,9 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     @Override
     public Object visit(Set expression) {
         var object = evaluate(expression.getObject());
-
+        if (object instanceof Variable) {
+            object = ((Variable) object).getValue();
+        }
         if (object instanceof LoxInstance instance) {
             var value = evaluate(expression.getValue());
             instance.set(expression.getName(), value);
