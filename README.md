@@ -11,4 +11,4 @@ $ java -jar target/<jar file>
 
 ## TODOs
 
-- [ ] complete the project
+- [x] complete the project
