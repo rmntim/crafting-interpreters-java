@@ -375,6 +375,13 @@ public class Parser {
             return new Literal(previous().value());
         }
 
+        if (expect(SUPER)) {
+            var keyword = previous();
+            consume(DOT, "Expected '.' after 'super'");
+            var method = consume(IDENTIFIER, "Expected superclass method name");
+            return new Super(keyword, method);
+        }
+
         if (expect(SELF)) {
             return new Self(previous());
         }

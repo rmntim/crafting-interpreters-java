@@ -13,6 +13,11 @@ public record LoxClass(String name, LoxClass superclass, Map<String, LoxFunction
         if (methods.containsKey(name)) {
             return Optional.of(methods.get(name));
         }
+
+        if (superclass != null) {
+            return superclass.findMethod(name);
+        }
+
         return Optional.empty();
     }
 

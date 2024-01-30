@@ -114,6 +114,20 @@ public class Resolver implements Expression.Visitor<Void>, Statement.Visitor<Voi
     }
 
     @Override
+    public Void visit(Super expression) {
+        if (currentClass == ClassType.NONE) {
+            ErrorReporter.error(expression.getKeyword(),
+                    "Use of 'super' outside of a class is not allowed");
+        } else if (currentClass != ClassType.SUBCLASS) {
+            ErrorReporter.error(expression.getKeyword(),
+                    "'super' in a class without a superclass is not allowed");
+        }
+
+        resolveLocal(expression, expression.getKeyword());
+        return null;
+    }
+
+    @Override
     public Void visit(Expr statement) {
         resolve(statement.getExpression());
         return null;
@@ -198,7 +212,10 @@ public class Resolver implements Expression.Visitor<Void>, Statement.Visitor<Voi
                 ErrorReporter.error(superclass.getName(),
                         "Class can't inherit from itself");
             }
+            currentClass = ClassType.SUBCLASS;
             resolve(superclass);
+            beginScope();
+            scopes.peek().put("super", true);
         }
 
         beginScope();
@@ -213,6 +230,10 @@ public class Resolver implements Expression.Visitor<Void>, Statement.Visitor<Voi
         }
 
         endScope();
+
+        if (statement.getSuperclass().isPresent()) {
+            endScope();
+        }
 
         currentClass = enclosingClass;
         return null;

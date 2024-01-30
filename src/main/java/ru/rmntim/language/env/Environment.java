@@ -84,6 +84,10 @@ public class Environment {
         ancestor(distance).variables.put(name.literal(), value);
     }
 
+    public Environment getParent() {
+        return parent;
+    }
+
     @Override
     public String toString() {
         var sb = new StringBuilder();

@@ -279,6 +279,18 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
+    public Object visit(Super expression) {
+        var distance = locals.get(expression);
+        var superclass = (LoxClass) environment.getAt(distance, "super");
+        var object = (LoxInstance) environment.getAt(distance - 1, "this");
+
+        var method = superclass.findMethod(expression.getMethod().literal())
+                .orElseThrow(() -> new RuntimeError(expression.getMethod(),
+                        "Undefined property '" + expression.getMethod().literal() + "'"));
+        return method.bind(object);
+    }
+
+    @Override
     public Void visit(Expr statement) {
         evaluate(statement.getExpression());
         return null;
@@ -368,6 +380,11 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
             }
         });
 
+        if (statement.getSuperclass().isPresent()) {
+            environment = new Environment(environment);
+            environment.define("super", (LoxClass) superclass);
+        }
+
         var methods = new HashMap<String, LoxFunction>();
         for (var method : statement.getMethods()) {
             var function = new LoxFunction(method, environment, method.getName().literal().equals("init"));
@@ -375,6 +392,11 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
         }
 
         var class_ = new LoxClass(statement.getName().literal(), (LoxClass) superclass, methods);
+
+        if (superclass != null) {
+            environment = environment.getParent();
+        }
+
         environment.assign(statement.getName(), class_);
         return null;
     }

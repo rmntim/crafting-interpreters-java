@@ -25,6 +25,8 @@ public abstract class Expression {
         T visit(Set expression);
 
         T visit(Self expression);
+
+        T visit(Super expression);
     }
 
     public abstract <T> T accept(Visitor<T> visitor);
